@@ -3,7 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Forms\ImportCards;
-use App\Admin\Forms\autogeneration;
+use App\Admin\Forms\AutoGeneration;
 use App\Models\Cards;
 use App\Models\Products;
 use App\Models\Classifys;

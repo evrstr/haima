@@ -105,25 +105,45 @@ class Controller extends BaseController
                         break;
                     case 1: //使用中
                         # code...
-                        if ($uuid == $card['machine_uuid']) {
-                            //构造返回数据
-                            $result['msg'] = '验证成功!';
-                            $result['code'] = 2010;
-                            $result['time'] = $nowtime;
-                            $data['check'] = true;
-                            $data['time'] = $clicent_time;
-                            $data['status'] = $card['check_status'];
-                            $result['data'] = $data;
-                            //对数据签名
-                            $result['sign'] = md5($card['card_info'] . $data['time'] . $classifys['appid'] . $data['check'] . $data['time'] . $data['status']);
-                            //返回json数据
-                            return response()->json($result);
+                        if ($nowtime <= $card['check_etime']) {
+                            # code...
+
+
+                            if ($uuid == $card['machine_uuid']) {
+                                //构造返回数据
+                                $result['msg'] = '验证成功!';
+                                $result['code'] = 2010;
+                                $result['time'] = $nowtime;
+                                $data['check'] = true;
+                                $data['time'] = $clicent_time;
+                                $data['status'] = $card['check_status'];
+                                $result['data'] = $data;
+                                //对数据签名
+                                $result['sign'] = md5($card['card_info'] . $data['time'] . $classifys['appid'] . $data['check'] . $data['time'] . $data['status']);
+                                //返回json数据
+                                return response()->json($result);
+                            } else {
+                                //构造返回数据
+                                $result['msg'] = '验证失败！解绑机器请联系管理员！';
+                                $result['code'] = 2011;
+                                $result['time'] = $nowtime;
+                                $data['check'] = false;
+                                $data['time'] = $clicent_time;
+                                $data['status'] = $card['check_status'];
+                                $result['data'] = $data;
+                                //对数据签名
+                                $result['sign'] = md5($card['card_info'] . $data['time'] . $classifys['appid'] . $data['check'] . $data['time'] . $data['status']);
+                                //返回json数据
+                                return response()->json($result);
+                            }
                         } else {
+                            //更新数据库
+                            Cards::where('card_info', $card['card_info'])->update(['check_status' => 0]);
                             //构造返回数据
-                            $result['msg'] = '验证失败！解绑机器请联系管理员！';
-                            $result['code'] = 2011;
+                            $result['msg'] = '验证失败！卡密过期！';
+                            $result['code'] = 2000;
                             $result['time'] = $nowtime;
-                            $data['check'] = true;
+                            $data['check'] = false;
                             $data['time'] = $clicent_time;
                             $data['status'] = $card['check_status'];
                             $result['data'] = $data;

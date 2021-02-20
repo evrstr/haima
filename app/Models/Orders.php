@@ -11,7 +11,7 @@ class Orders extends Model
 
     use SoftDeletes;
 
-    protected $fillable = ['order_id', 'product_id', 'coupon_id', 'ord_class', 'product_price', 'ord_price', 'buy_amount', 'ord_title', 'search_pwd', 'account', 'ord_info', 'pay_ord', 'pay_way', 'buy_ip', 'ord_status'];//开启白名单字段
+    protected $fillable = ['order_id', 'product_id', 'coupon_id', 'ord_class', 'product_price', 'ord_price', 'buy_amount', 'ord_title', 'search_pwd', 'account', 'ord_info', 'pay_ord', 'pay_way', 'buy_ip', 'ord_status']; //开启白名单字段
 
 
     /**
@@ -47,6 +47,8 @@ class Orders extends Model
 
         static::saved(function ($model) {
             // 当代充商品状态，将会对顾客进行订单内容推送
+            $product = Products::where('id', $model->product_id)->first();
+            $classfys = Classifys::where('id', $product['pd_class'])->first();
             $order = [
                 'created_at' => date('Y-m-d H:i'),
                 'ord_title' => $model->ord_title,
@@ -81,11 +83,9 @@ class Orders extends Model
      * @param array $order
      * @param string $to
      */
-    private static function sendMailToOrderStatus(array $mailtpl, array $order, string $to) :void
+    private static function sendMailToOrderStatus(array $mailtpl, array $order, string $to): void
     {
         $mailtipsInfo = replace_mail_tpl($mailtpl, $order);
         SendMails::dispatch($to, $mailtipsInfo['tpl_content'], $mailtipsInfo['tpl_name']);
     }
-
-
 }
